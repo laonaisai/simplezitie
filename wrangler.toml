@@ -1,0 +1,8 @@
+name = "restless-mud-6c4d"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "zhitie-db"
+database_id = "08146104-e0f4-4e54-9751-49671e73728a"

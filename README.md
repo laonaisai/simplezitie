@@ -1,6 +1,6 @@
 # 简易中文字帖
 
-一个运行在 Cloudflare Workers 上的中文字帖练习应用。Worker 同时提供单页前端和 JSON API，使用 Cloudflare D1 保存用户及字帖数据。
+一个运行在 Cloudflare Workers 上的中文字帖练习应用。前端使用 React + Vite 开发和构建，Worker 提供 JSON API，使用 Cloudflare D1 保存用户及字帖数据。
 
 ## 功能
 
@@ -10,28 +10,38 @@
 - 保存、打开、修改和删除个人字帖；笔迹以 canvas 图片数据保存。
 - 登录失败达到 5 次后，按客户端 IP 锁定 30 分钟；验证码有效期为 5 分钟。
 
-前端页面内嵌在 `worker.js`，React 通过 bootcdn 加载。字帖字体优先使用客户端已安装的系统字体；系统字体缺失时，通过 ZSFT FontsAPI 加载开源近似字体：霞鹜臻楷（楷书）、志莽行书（行书风格，近似行楷）和洄波隶书（CC0）。洄波隶书仅含 308 个字形，未收录的汉字会继续回退到系统字体。
+字帖字体优先使用客户端已安装的系统字体；系统字体缺失时，通过 ZSFT FontsAPI 加载开源近似字体：霞鹜臻楷（楷书）、志莽行书（行书风格，近似行楷）和洄波隶书（CC0）。洄波隶书仅含 308 个字形，未收录的汉字会继续回退到系统字体。
 
 ## 技术栈
 
 - Cloudflare Workers：前端页面和 API 的运行环境。
 - Cloudflare D1：SQLite 数据库，绑定名为 `DB`，数据库名为 `zhitie-db`。
-- Wrangler：本地开发、数据库管理和部署工具。
-- 前端使用 React 18 UMD 构建，直接由 Worker 返回 HTML。
+- Vite：前端开发服务器和生产构建工具。
+- Wrangler：Worker 本地运行、数据库管理和部署工具。
+- React 18：通过 npm 安装并由 Vite 打包，不再从 CDN 加载 React。
 
 ## 环境要求
 
-- Node.js 和 npm
+- Node.js 20.19+ 或 22.12+，以及 npm
 - Cloudflare 账号（远程数据库操作和部署需要）
-- Wrangler CLI，可通过 `npx wrangler` 调用
+- Wrangler CLI 随项目依赖安装
 
 ## 本地开发
 
 ```sh
-npx wrangler dev
+npm install
+npm run dev
 ```
 
-Wrangler 根据 `wrangler.toml` 启动 Worker，并使用本地 D1 状态。首次运行前建议先初始化本地数据库。
+Vite 前端运行在 `http://localhost:5173`，支持热更新；本地 Wrangler Worker 运行在 `http://localhost:8791`，Vite 会将 `/api` 请求代理到 Worker。启动时会构建前端并初始化本地 D1 schema。
+
+只构建前端静态资源：
+
+```sh
+npm run build
+```
+
+构建产物写入 `dist/`，该目录由 Wrangler 作为静态资源发布。
 
 ## 数据库
 
@@ -69,10 +79,10 @@ npx wrangler d1 execute zhitie-db --remote --file=./schema.sql
 
 ```sh
 npx wrangler login
-npx wrangler deploy
+npm run deploy
 ```
 
-部署前检查 `wrangler.toml` 中的 Worker 名称、兼容日期和 D1 绑定，并确认远程数据库已初始化。部署完成后，访问 Worker 域名即可打开应用。
+`npm run deploy` 会先执行 Vite production build，再由 Wrangler 打包 Worker 并发布 `dist/` 静态资源。`worker.js` 是 Wrangler 的轻量入口，业务 API 在 `src/worker.js`；无需手工将前端编译并覆盖成单个 `worker.js`。部署前检查 `wrangler.toml` 中的 Worker 名称、兼容日期和 D1 绑定，并确认远程数据库已初始化。
 
 ## 安全说明
 
@@ -88,10 +98,18 @@ npx wrangler deploy
 
 ```text
 .
+├── index.html
+├── package.json
+├── package-lock.json
 ├── README.md
 ├── schema.sql
 ├── public/
 │   └── favicon.ico
+├── src/
+│   ├── main.jsx
+│   ├── style.css
+│   └── worker.js
+├── vite.config.js
 ├── worker.js
 └── wrangler.toml
 ```

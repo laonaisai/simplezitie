@@ -8,5 +8,6 @@ database_name = "zhitie-db"
 database_id = "08146104-e0f4-4e54-9751-49671e73728a"
 
 [assets]
-directory = "./public"
+directory = "./dist"
 binding = "ASSETS"
+run_worker_first = ["/api/*"]

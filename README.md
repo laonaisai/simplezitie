@@ -18,7 +18,9 @@
 - Cloudflare D1：SQLite 数据库，绑定名为 `DB`，数据库名为 `zhitie-db`。
 - Vite：前端开发服务器和生产构建工具。
 - Wrangler：Worker 本地运行、数据库管理和部署工具。
-- React 18：通过 npm 安装并由 Vite 打包，不再从 CDN 加载 React。
+- React 18：前端组件化开发，由 Vite 打包。
+- Tailwind CSS v4 + DaisyUI v5：现代轻量 UI 组件系统，支持多主题切换（宣纸复古、素绢雅致、清新自然等）。
+- Lucide React：轻量优雅的矢量图标库。
 
 ## 环境要求
 
